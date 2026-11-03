@@ -13,7 +13,8 @@ func _ready() -> void:
 	add_child(UIKit.full_rect(bg))
 
 	if OS.get_cmdline_user_args().has("--run-tests"):
-		var runner: Node = load("res://tests/test_runner.gd").new()
+		var runner_script: GDScript = load("res://tests/test_runner.gd")
+		var runner: Node = runner_script.new()
 		add_child(runner)
 		return
 

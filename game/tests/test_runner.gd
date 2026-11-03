@@ -47,13 +47,13 @@ func _test_scripts_load() -> void:
 
 
 func _test_translations() -> void:
-	var tr := Loc.read_table("tr")
-	var en := Loc.read_table("en")
-	check(tr.size() > 50, "tr.json boş görünüyor")
-	for k in tr:
-		check(en.has(k), "en.json içinde eksik anahtar: " + k)
-	for k in en:
-		check(tr.has(k), "tr.json içinde eksik anahtar: " + k)
+	var tr_table := Loc.read_table("tr")
+	var en_table := Loc.read_table("en")
+	check(tr_table.size() > 50, "tr.json boş görünüyor")
+	for k in tr_table:
+		check(en_table.has(k), "en.json içinde eksik anahtar: " + k)
+	for k in en_table:
+		check(tr_table.has(k), "tr.json içinde eksik anahtar: " + k)
 
 
 func _test_chapter_data() -> void:
@@ -200,9 +200,10 @@ func _test_screens() -> void:
 	var phone := PhoneOS.new()
 	host.add_child(phone)
 	await _frames(3)
-	phone.open("terminal")
-	check(phone.open_app == null, "kilitli terminal açıldı")
-	for app in ["messages", "map", "settings"]:
+	for locked_app in ["terminal", "map"]:
+		phone.open(locked_app)
+		check(phone.open_app == null, "kilitli uygulama açıldı: " + locked_app)
+	for app in ["messages", "settings"]:
 		phone.open(app)
 		check(phone.open_app != null, "uygulama açılmadı: " + app)
 		await _frames(3)
@@ -225,6 +226,11 @@ func _test_screens() -> void:
 		host.add_child(game)
 		await _frames(5)
 		game.queue_free()
+
+	var map_app := MapApp.new()
+	host.add_child(map_app)
+	await _frames(2)
+	map_app.queue_free()
 
 	var end := ChapterEnd.new()
 	host.add_child(end)
