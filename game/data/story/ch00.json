@@ -1,0 +1,446 @@
+{
+ "id": "ch00",
+ "title": {
+  "tr": "Bölüm 0: Kör Nokta",
+  "en": "Chapter 0: Blind Spot"
+ },
+ "contacts": {
+  "kedi": {
+   "name": {
+    "tr": "KEDİ",
+    "en": "KEDİ"
+   },
+   "color": "ffab4c"
+  }
+ },
+ "network": {
+  "scan_order": [
+   "eczane-wifi",
+   "argos-relay-07",
+   "kamera-tarlabasi-12"
+  ],
+  "hosts": {
+   "eczane-wifi": {
+    "desc": {
+     "tr": "Nöbetçi eczanenin misafir ağı",
+     "en": "Night pharmacy guest Wi-Fi"
+    },
+    "firewall": null,
+    "files": {
+     "duyuru.txt": {
+      "tr": "NÖBETÇİ ECZANE MİSAFİR AĞI\nLütfen kasanın önüne kedi maması bırakmayın.\nKediler zaten yeterince besleniyor.\n— Yönetim",
+      "en": "NIGHT PHARMACY GUEST NETWORK\nPlease stop leaving cat food by the register.\nThe cats are fed enough already.\n— Management"
+     }
+    }
+   },
+   "argos-relay-07": {
+    "desc": {
+     "tr": "ARGOS Beyoğlu kamera aktarma sunucusu",
+     "en": "ARGOS Beyoğlu camera relay server"
+    },
+    "firewall": "breach",
+    "files": {
+     "basin_bulteni_taslak.txt": {
+      "tr": "TASLAK · YAYIN SAATİ 03:15\nARGOS Kamu Güvenliği Birimi, Tarlabaşı'ndaki 40 dakikalık enerji kesintisinin bir iç saldırı olduğunu tespit etmiştir.\nŞüpheli: Deniz Kaya (27), ARGOS güvenlik test ekibi.\nŞüpheliyi gören vatandaşlarımız GÖZ uygulaması üzerinden bildirebilir.",
+      "en": "DRAFT · RELEASE TIME 03:15\nThe ARGOS Public Safety Unit has determined that the 40-minute blackout in Tarlabaşı was an insider attack.\nSuspect: Deniz Kaya (27), ARGOS security testing team.\nCitizens who see the suspect can report them through the EYE app."
+     },
+     "operasyon_kirpi.log": {
+      "tr": "[02.11 23:58] KİRPİ başlatıldı: Tarlabaşı trafo-3 uzaktan kapatma\n[03.11 00:38] Kesinti tamamlandı. Süre: 40 dk\n[03.11 00:41] Kayıt silme: BAŞARISIZ (yetki yok)\n[03.11 01:10] Sorumlu atandı: D. KAYA #4471",
+      "en": "[02.11 23:58] HEDGEHOG started: remote shutdown of Tarlabaşı transformer-3\n[03.11 00:38] Blackout complete. Duration: 40 min\n[03.11 00:41] Log wipe: FAILED (no permission)\n[03.11 01:10] Assigned culprit: D. KAYA #4471"
+     }
+    }
+   },
+   "kamera-tarlabasi-12": {
+    "desc": {
+     "tr": "Apartmanın karşısındaki sokak kamerası",
+     "en": "Street camera across from your building"
+    },
+    "firewall": "signal",
+    "files": {
+     "canli_yayin.cfg": {
+      "tr": "yuz_tanima = ACIK\nkayit_hedefi = argos-relay-07\ndongu_modu = ACIK (04:00)",
+      "en": "face_recognition = ON\nrecord_target = argos-relay-07\nloop_mode = ON (04:00)"
+     }
+    }
+   }
+  }
+ },
+ "beats": [
+  {
+   "type": "system",
+   "text": {
+    "tr": "02:47 · Bilinmeyen kaynaktan şifreli bağlantı",
+    "en": "02:47 · Encrypted connection from an unknown source"
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Deniz. Uyanık olduğunu biliyorum. Ekranın üç dakikadır açık.",
+    "en": "Deniz. I know you're awake. Your screen's been on for three minutes."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Korkma. Bu şehirdeki her kamera seni izliyor. Ben hariç.",
+    "en": "Don't panic. Every camera in this city is watching you. Except me."
+   }
+  },
+  {
+   "type": "choice",
+   "options": [
+    {
+     "text": {
+      "tr": "Sen kimsin?",
+      "en": "Who are you?"
+     },
+     "goto": "who"
+    },
+    {
+     "text": {
+      "tr": "Numaramı nereden buldun?",
+      "en": "How did you get my number?"
+     },
+     "goto": "number"
+    },
+    {
+     "text": {
+      "tr": "Seni engelliyorum.",
+      "en": "I'm blocking you."
+     },
+     "goto": "block"
+    }
+   ]
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bana KEDİ de. Beyoğlu'nun eski sokak kameralarında yaşıyorum. Kimse onları güncellemedi, ben de yerleştim.",
+    "en": "Call me KEDİ. I live in Beyoğlu's old street cameras. Nobody ever updated them, so I moved in."
+   },
+   "id": "who"
+  },
+  {
+   "type": "goto",
+   "target": "warn"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "ARGOS personel listesinden. Güvenlik test ekibi, sicil 4471. Geçen ay yazdığın raporu okudum. İyiydi. Kimse dinlemedi ama.",
+    "en": "From the ARGOS staff list. Security testing team, ID 4471. I read the report you wrote last month. It was good. Nobody listened, though."
+   },
+   "id": "number"
+  },
+  {
+   "type": "goto",
+   "target": "warn"
+  },
+  {
+   "type": "system",
+   "text": {
+    "tr": "Engelleme başarısız: gönderen kimliği doğrulanamıyor.",
+    "en": "Block failed: sender identity can't be verified."
+   },
+   "id": "block"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bunu deneyeceğini tahmin etmiştim. Önce dinle, sonra istediğin kadar engelle.",
+    "en": "Figured you'd try that. Listen first, then block me all you want."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Dün gece Tarlabaşı'nda 40 dakikalık bir karartma oldu. ARGOS saat 03:15'te açıklama yapacak. Suçlu olarak senin adını verecekler.",
+    "en": "Last night Tarlabaşı had a 40-minute blackout. ARGOS goes public at 03:15. They're going to name you as the culprit."
+   },
+   "id": "warn"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "İnanmıyorsan kendin gör. Telefonuna küçük bir hediye bıraktım.",
+    "en": "Don't believe me? See for yourself. I left a little gift on your phone."
+   }
+  },
+  {
+   "type": "unlock",
+   "app": "terminal"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Ana ekrana dön, Terminal'i aç ve 'tara' yaz. Çevrendeki ağları göreceksin.",
+    "en": "Go back to the home screen, open Terminal and type 'scan'. You'll see the networks around you."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "cmd:scan",
+   "hint": {
+    "tr": "Terminal'i aç ve 'tara' yaz.",
+    "en": "Open Terminal and type 'scan'."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "argos-relay-07'yi gördün mü? Beyoğlu'nun bütün kamera kayıtları oradan geçiyor. Bağlan.",
+    "en": "See argos-relay-07? Every camera feed in Beyoğlu runs through it. Connect."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "cmd:connect:argos-relay-07",
+   "hint": {
+    "tr": "Terminal'de 'bağlan argos-relay-07' yaz.",
+    "en": "In Terminal, type 'connect argos-relay-07'."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Güvenlik duvarı var tabii. Senin işin bu, değil mi? 'kır' yaz. Boşlukları yakala, iz bırakma.",
+    "en": "Firewall, of course. That's your job, isn't it? Type 'crack'. Hit the gaps, leave no trace."
+   }
+  },
+  {
+   "type": "wait",
+   "id": "breach_wait",
+   "event": "minigame:breach:success",
+   "fail_event": "minigame:breach:fail",
+   "fail_goto": "breach_fail",
+   "hint": {
+    "tr": "'kır' yaz ve güvenlik duvarını del.",
+    "en": "Type 'crack' and break the firewall."
+   }
+  },
+  {
+   "type": "goto",
+   "target": "breach_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Yavaş ol. Her hata ARGOS'un iz sayacını artırıyor. Tekrar dene.",
+    "en": "Easy. Every mistake pushes ARGOS's trace counter up. Try again."
+   },
+   "id": "breach_fail"
+  },
+  {
+   "type": "goto",
+   "target": "breach_wait"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "İçerdesin. 'ls' ile dosyalara bak. Taslak bülteni oku.",
+    "en": "You're in. Use 'ls' to see the files. Read the draft bulletin."
+   },
+   "id": "breach_ok"
+  },
+  {
+   "type": "wait",
+   "event": "cmd:cat:basin_bulteni_taslak.txt",
+   "hint": {
+    "tr": "'oku basin_bulteni_taslak.txt' yaz.",
+    "en": "Type 'cat basin_bulteni_taslak.txt'."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Gördün. 03:15'te şehirdeki bütün ekranlarda senin yüzün olacak.",
+    "en": "There it is. At 03:15 your face will be on every screen in the city."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Ama aynı sunucuda ARGOS'un kendi kaydı da var: Operasyon Kirpi. Karartmayı onlar yaptı. Neden yaptıklarını henüz bilmiyorum.",
+    "en": "But the same server has ARGOS's own log too: Operation Hedgehog. They caused the blackout. I don't know why yet."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Şimdi karar senin. Ne yapacağız?",
+    "en": "Your call now. What do we do?"
+   }
+  },
+  {
+   "type": "choice",
+   "options": [
+    {
+     "text": {
+      "tr": "Hemen ortadan kayboluyorum.",
+      "en": "I disappear. Right now."
+     },
+     "flag": "approach",
+     "value": "ghost",
+     "goto": "r_ghost"
+    },
+    {
+     "text": {
+      "tr": "Bu kaydı basına sızdıralım.",
+      "en": "Let's leak this log to the press."
+     },
+     "flag": "approach",
+     "value": "leak",
+     "goto": "r_leak"
+    },
+    {
+     "text": {
+      "tr": "ARGOS'a geri saldıralım.",
+      "en": "Let's hit ARGOS back."
+     },
+     "flag": "approach",
+     "value": "strike",
+     "goto": "r_strike"
+    }
+   ]
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Akıllıca. Görünmeyen yakalanmaz. Ama önce kapının önündeki kamerayı halletmemiz lazım.",
+    "en": "Smart. What can't be seen can't be caught. But first we deal with the camera outside your door."
+   },
+   "id": "r_ghost"
+  },
+  {
+   "type": "goto",
+   "target": "cam"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Cesur. Ama kanıtı tek başına yayınlarsan ilk silinen sen olursun. Önce güvenli bir yere gitmemiz lazım.",
+    "en": "Brave. But leak it alone and you're the first thing that gets erased. We need somewhere safe first."
+   },
+   "id": "r_leak"
+  },
+  {
+   "type": "goto",
+   "target": "cam"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Hoşuma gittin. Ama ARGOS'un altı bin sunucusu var, senin bir telefonun. Önce hayatta kal.",
+    "en": "I like you. But ARGOS has six thousand servers and you have one phone. Survive first."
+   },
+   "id": "r_strike"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Apartmanının karşısında kamera-tarlabasi-12 var. Yüz tanıma açık. Bağlan ve yayını döngüye al.",
+    "en": "There's kamera-tarlabasi-12 across from your building. Face recognition is on. Connect and loop the feed."
+   },
+   "id": "cam"
+  },
+  {
+   "type": "wait",
+   "event": "cmd:connect:kamera-tarlabasi-12",
+   "hint": {
+    "tr": "'bağlan kamera-tarlabasi-12' yaz.",
+    "en": "Type 'connect kamera-tarlabasi-12'."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bu bir kamera, şifre kırmak işe yaramaz. Sinyalini yakalaman lazım. 'kır' yaz ve dalgaları eşleştir.",
+    "en": "It's a camera, passwords won't help. You need to catch its signal. Type 'crack' and match the waves."
+   }
+  },
+  {
+   "type": "wait",
+   "id": "cam_wait",
+   "event": "minigame:signal:success",
+   "fail_event": "minigame:signal:fail",
+   "fail_goto": "cam_fail",
+   "hint": {
+    "tr": "'kır' yaz ve sinyali kilitle.",
+    "en": "Type 'crack' and lock the signal."
+   }
+  },
+  {
+   "type": "goto",
+   "target": "cam_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Kamera kendini yeniden başlattı. Bir daha.",
+    "en": "The camera rebooted itself. Again."
+   },
+   "id": "cam_fail"
+  },
+  {
+   "type": "goto",
+   "target": "cam_wait"
+  },
+  {
+   "type": "system",
+   "text": {
+    "tr": "kamera-tarlabasi-12: canlı yayın döngüde (04:00)",
+    "en": "kamera-tarlabasi-12: live feed looped (04:00)"
+   },
+   "id": "cam_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Tamam. Dört dakika boyunca kamera dünkü boş sokağı gösterecek.",
+    "en": "Done. For four minutes that camera shows yesterday's empty street."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Ceketini al. Arka merdivenden in. Yolu ben göstereceğim.",
+    "en": "Grab your jacket. Take the back stairs. I'll guide you."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Hoş geldin Deniz. Artık sen de bir kör noktasın.",
+    "en": "Welcome, Deniz. Now you're a blind spot too."
+   }
+  },
+  {
+   "type": "end_chapter"
+  }
+ ]
+}

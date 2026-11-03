@@ -1,0 +1,79 @@
+name: Kör Nokta · test ve Android derleme
+
+on:
+  push:
+    paths:
+      - "game/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.7.2
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot ayarları
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates/ ~/.config/
+          cp -r /root/.config/godot ~/.config/godot || true
+          cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable || true
+          godot --version
+
+      - name: Kaynakları içe aktar
+        working-directory: game
+        run: |
+          godot --headless --import 2>&1 | tee ../import.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script" ../import.log; then
+            echo "::error::İçe aktarırken betik hatası var"
+            exit 1
+          fi
+
+      - name: Testleri çalıştır
+        working-directory: game
+        run: |
+          timeout 300 godot --headless -- --run-tests 2>&1 | tee ../test.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script" ../test.log; then
+            echo "::error::Testler sırasında betik hatası var"
+            exit 1
+          fi
+
+      - name: Android APK derle
+        working-directory: game
+        run: |
+          mkdir -p ../build
+          godot --headless --export-debug "Android" ../build/KorNokta-dev.apk 2>&1 | tee ../export.log
+          test -s ../build/KorNokta-dev.apk
+          ls -lh ../build
+
+      - name: APK'yı yükle (Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: KorNokta-dev-apk
+          path: build/KorNokta-dev.apk
+          retention-days: 30
+
+      - name: Telefondan indirilebilir sürüm yayınla
+        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'branch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-${{ github.ref_name }}
+          name: "Kör Nokta · geliştirici sürümü (${{ github.ref_name }})"
+          prerelease: true
+          make_latest: false
+          body: |
+            Otomatik derlenen test sürümü. Commit: ${{ github.sha }}
+            Telefona kurmak için KorNokta-dev.apk dosyasını indir ve aç.
+            (Android "bilinmeyen kaynaklardan yükleme" izni isteyebilir.)
+          files: build/KorNokta-dev.apk
