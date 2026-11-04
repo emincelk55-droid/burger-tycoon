@@ -51,7 +51,8 @@ func _build(root: VBoxContainer) -> void:
 	_out.selection_enabled = false
 	_out.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_out.add_theme_font_override("normal_font", UIKit.mono_font())
-	_out.add_theme_font_size_override("normal_font_size", 24)
+	_out.add_theme_font_size_override("normal_font_size", 27)
+	_out.add_theme_constant_override("line_separation", 6)
 	_out.add_theme_color_override("default_color", UIKit.TEXT)
 	var out_m := UIKit.margin(_out, 20, 8, 20, 8)
 	out_m.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -78,8 +79,10 @@ func _build(root: VBoxContainer) -> void:
 	_input.placeholder_text = Loc.t("term.placeholder")
 	_input.custom_minimum_size = Vector2(0, 80)
 	_input.add_theme_font_override("font", UIKit.mono_font())
-	_input.add_theme_font_size_override("font_size", 26)
-	_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_DEFAULT
+	_input.add_theme_font_size_override("font_size", 28)
+	_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_URL
+	if "keep_editing_on_text_submit" in _input:
+		_input.set("keep_editing_on_text_submit", true)
 	_input.text_submitted.connect(_on_submit)
 	bcol.add_child(_input)
 
@@ -166,3 +169,9 @@ func _print_line(text: String, color: String) -> void:
 
 static func _escape(text: String) -> String:
 	return text.replace("[", "[lb]")
+
+
+func _on_keyboard_changed(height: float) -> void:
+	# Klavye açıkken ipucunu gizle, çıktıya yer kalsın; en alttaki satıra kaydır.
+	_hint.visible = height <= 0.0 and _hint.text != ""
+	_out.scroll_to_line(maxi(_out.get_line_count() - 1, 0))

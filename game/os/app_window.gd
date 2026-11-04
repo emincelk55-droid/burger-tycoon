@@ -8,6 +8,7 @@ signal close_requested
 var content: VBoxContainer
 var header_title: Label
 var header_status: Label
+var _kb_spacer: Control
 
 
 func _ready() -> void:
@@ -55,7 +56,22 @@ func _ready() -> void:
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_theme_constant_override("separation", 0)
 	col.add_child(content)
+	_kb_spacer = Control.new()
+	_kb_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(_kb_spacer)
 	_build(content)
+
+
+func _process(_delta: float) -> void:
+	var h := UIKit.keyboard_height(self)
+	if not is_equal_approx(_kb_spacer.custom_minimum_size.y, h):
+		_kb_spacer.custom_minimum_size.y = h
+		_on_keyboard_changed(h)
+
+
+## Klavye açılıp kapanınca alt sınıflar tepki verebilir.
+func _on_keyboard_changed(_height: float) -> void:
+	pass
 
 
 func _title() -> String:

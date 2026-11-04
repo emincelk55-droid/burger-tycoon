@@ -24,10 +24,26 @@ static var _mono: Font
 
 static func mono_font() -> Font:
 	if _mono == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Roboto Mono", "Droid Sans Mono", "DejaVu Sans Mono", "Consolas", "monospace"])
-		_mono = f
+		var path := "res://fonts/JetBrainsMonoNL-Regular.woff2"
+		if ResourceLoader.exists(path):
+			_mono = load(path) as Font
+		if _mono == null:
+			var f := SystemFont.new()
+			f.font_names = PackedStringArray(["Roboto Mono", "Droid Sans Mono", "monospace"])
+			_mono = f
 	return _mono
+
+
+## Ekran klavyesinin yüksekliği (viewport birimiyle). Klavye kapalıysa 0.
+static func keyboard_height(node: Node) -> float:
+	if not DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD):
+		return 0.0
+	var kb := DisplayServer.virtual_keyboard_get_height()
+	var win := DisplayServer.window_get_size()
+	if kb <= 0 or win.y <= 0:
+		return 0.0
+	var vp := node.get_viewport().get_visible_rect().size
+	return kb * (vp.y / float(win.y))
 
 
 static func box(bg: Color, radius: int = 18, pad: int = 16, border: Color = Color(0, 0, 0, 0), border_w: int = 0) -> StyleBoxFlat:
