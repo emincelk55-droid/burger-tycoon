@@ -49,6 +49,7 @@ Oyunun tamamı Deniz'in telefonunda geçiyor. Uygulamalar hikayeyle birlikte aç
 |---|---|---|
 | **Güvenlik Duvarı** | ✅ prototipte | İmleç gidip geliyor, yeşil boşlukta DEL'e bas. Her başarıda boşluk daralıyor, imleç hızlanıyor |
 | **Sinyal Kilidi** | ✅ prototipte | Frekans ve faz sürgüleriyle kendi dalganı kameranın kayan dalgasına eşle, kilidi doldur |
+| **Kod Yaması** | ✅ Bölüm 1 | Oyunun kurgusal betik dilinde kısa bir program. Kırmızı satırdaki eksik değeri yaz ya da seç. Değer çoğu zaman terminalde okunan dosyalarda saklı |
 | Paket Yönlendirme | planlı | Veri paketlerini düğümler arasında yönlendir, ARGOS tarayıcılarından kaçır |
 | Şifre Kırıcı | planlı | Mastermind benzeri sembol tahmini, süre baskısı |
 | Yüz Değiştirme | planlı | Kamera akışında yüzünü kayıtlardan sil, karelerle yarış |
@@ -75,7 +76,7 @@ Prologun sonunda oyuncu bir yol seçiyor. Bu seçim sonraki bölümlerdeki diyal
 | Bölüm | Ad | Özet | Durum |
 |---|---|---|---|
 | 0 | Kör Nokta | 02:47. KEDİ ilk mesajı atıyor. ARGOS'un Deniz'i suçlayacağını öğreniyorsun. İlk hack, ilk seçim, kamerayı döngüye alıp evden kaçış | ✅ oynanabilir |
-| 1 | Tarlabaşı | İlk saha bölümü. ARGOS ekipleri gelmeden mahalleden çık, güvenli bir yer bul | sıradaki |
+| 1 | Tarlabaşı'ndan Kaçış | Arka kapı kilidi, sokak lambaları, ARGOS drone'u ve tramvay turnikesi. 3 kod yaması bulmacası, yola göre değişen diyaloglar | ✅ oynanabilir |
 | 2 | Kirpi | Operasyon Kirpi'nin ne olduğunu araştır. Karartma neden yapıldı? | taslak |
 | 3 | Haliç | Eski bir hacker ekibiyle tanışma. Kara pazar açılıyor | taslak |
 | 4 | Kedi Kimdir? | KEDİ'nin kökeni. Büyük ihanet ya da büyük sır | taslak |
@@ -107,7 +108,7 @@ game/
 
 ## 9. Sıradaki adımlar
 1. Prototipi telefonda oyna, geri bildirim ver (his, zorluk, hikaye).
-2. Bölüm 1 saha bölümü prototipi: üstten görünüm hareket + kamera hackleme.
+2. Saha bölümü prototipi (üstten görünüm hareket + kamera kontrolü), Bölüm 2 ile birlikte.
 3. Ses: ortam sesleri, bildirim sesi, mini oyun efektleri.
 4. Gerçek yazı tipleri ve görsel stil (çizer ile).
 5. Play Console: paket adı kararı, kapalı test grubu (12 kişi).

@@ -1,0 +1,605 @@
+{
+ "id": "ch01",
+ "title": {
+  "tr": "Bölüm 1: Tarlabaşı'ndan Kaçış",
+  "en": "Chapter 1: Escape from Tarlabaşı"
+ },
+ "teaser": {
+  "tr": "Bölüm 2 · Kirpi yakında. Haliç'teki teknede seni kim bekliyor?",
+  "en": "Chapter 2 · Hedgehog coming soon. Who's waiting on the boat?"
+ },
+ "next": "",
+ "contacts": {
+  "kedi": {
+   "name": {
+    "tr": "KEDİ",
+    "en": "KEDİ"
+   },
+   "color": "ffab4c"
+  },
+  "argos": {
+   "name": {
+    "tr": "ARGOS · GÖZ",
+    "en": "ARGOS · EYE"
+   },
+   "color": "ff5d6c"
+  }
+ },
+ "network": {
+  "scan_order": [
+   "apartman-yonetim",
+   "arka-kapi-kilit",
+   "kurdele-sk-lambalar",
+   "argos-drone-3",
+   "tophane-turnike"
+  ],
+  "hosts": {
+   "apartman-yonetim": {
+    "desc": {
+     "tr": "Apartman yönetim paneli",
+     "en": "Building management panel"
+    },
+    "firewall": null,
+    "files": {
+     "kapici_notu.txt": {
+      "tr": "Arka kapının kartı değişti.\nYeni kart kodu: KAPICI-0412\nKimseye söylemeyin. Özellikle 3 numaradaki çocuklara!\n— Bekir",
+      "en": "The back door badge changed.\nNew badge code: KAPICI-0412\nDon't tell anyone. Especially the kids in flat 3!\n— Bekir"
+     },
+     "aidat_listesi.txt": {
+      "tr": "Daire 3 · Yılmaz · ÖDENMEDİ\nDaire 7 · D. Kaya · ödendi\nDaire 9 · Boş",
+      "en": "Flat 3 · Yılmaz · UNPAID\nFlat 7 · D. Kaya · paid\nFlat 9 · Empty"
+     }
+    }
+   },
+   "arka-kapi-kilit": {
+    "desc": {
+     "tr": "Arka kapı elektronik kilidi",
+     "en": "Back door smart lock"
+    },
+    "firewall": "patch:back_door",
+    "files": {
+     "kilit.log": {
+      "tr": "03:20 kart okutuldu: KAPICI-0412 · AÇIK",
+      "en": "03:20 badge read: KAPICI-0412 · OPEN"
+     }
+    }
+   },
+   "kurdele-sk-lambalar": {
+    "desc": {
+     "tr": "Sokak aydınlatma denetleyicisi",
+     "en": "Street lighting controller"
+    },
+    "firewall": "patch:lamps",
+    "files": {
+     "durum.txt": {
+      "tr": "14 lamba · güç: KAPALI · rapor: normal",
+      "en": "14 lamps · power: OFF · report: normal"
+     }
+    }
+   },
+   "argos-drone-3": {
+    "desc": {
+     "tr": "ARGOS devriye drone'u",
+     "en": "ARGOS patrol drone"
+    },
+    "firewall": "signal",
+    "files": {
+     "devriye_plani.txt": {
+      "tr": "03:30 Kurdele Sk. taraması\n03:40 Tophane T1 durağı\nNot: Turnikeler gece SERVICE modunda açık kalır, alarm vermez. Bakım ekibi için.",
+      "en": "03:30 Kurdele St. sweep\n03:40 Tophane T1 stop\nNote: At night the turnstiles stay open in SERVICE mode, no alarm. For the maintenance crew."
+     }
+    }
+   },
+   "tophane-turnike": {
+    "desc": {
+     "tr": "Tophane tramvay turnikesi",
+     "en": "Tophane tram turnstile"
+    },
+    "firewall": "patch:gate",
+    "files": {}
+   }
+  }
+ },
+ "puzzles": {
+  "back_door": {
+   "title": {
+    "tr": "Arka Kapı Kilidi",
+    "en": "Back Door Lock"
+   },
+   "goal": {
+    "tr": "Kilit sadece doğru kartı kabul ediyor. Kart kodunu yönetim panelindeki notta okudun.",
+    "en": "The lock only accepts the right badge. You read the badge code in the note on the management panel."
+   },
+   "file": "arka_kapi.kd",
+   "lines": [
+    "# Tarlabaşı Apt. No:14 · arka kapı",
+    "door back_door {",
+    "  open_when  badge == \"???\"",
+    "  log_to     argos-relay-07",
+    "  alarm      ON",
+    "}"
+   ],
+   "blank": 2,
+   "answer": "KAPICI-0412",
+   "options": [
+    "DAIRE-7",
+    "KAPICI-0412",
+    "ARGOS-ADMIN",
+    "4471"
+   ],
+   "time": 50
+  },
+  "lamps": {
+   "title": {
+    "tr": "Sokak Lambaları",
+    "en": "Street Lamps"
+   },
+   "goal": {
+    "tr": "Kurdele Sokağı'nı karart ki ARGOS aracı seni göremesin.",
+    "en": "Black out Kurdele Street so the ARGOS van can't see you."
+   },
+   "file": "kurdele_sk_lamba.kd",
+   "lines": [
+    "# Kurdele Sk. aydınlatma",
+    "for lamp in street(\"Kurdele Sk.\") {",
+    "  lamp.power = ???",
+    "  lamp.report(\"normal\")",
+    "}"
+   ],
+   "blank": 2,
+   "answer": "OFF",
+   "accept": [
+    "0",
+    "FALSE"
+   ],
+   "options": [
+    "ON",
+    "OFF",
+    "BLINK",
+    "100"
+   ],
+   "time": 35
+  },
+  "gate": {
+   "title": {
+    "tr": "Tramvay Turnikesi",
+    "en": "Tram Turnstile"
+   },
+   "goal": {
+    "tr": "Turnikeyi alarm vermeden açık tutan moda al. Drone'un devriye planında yazıyordu.",
+    "en": "Put the turnstile in the mode that stays open without an alarm. It was in the drone's patrol plan."
+   },
+   "file": "turnike_t1.kd",
+   "lines": [
+    "# Tophane T1 durağı",
+    "gate platform_A {",
+    "  mode    = ???",
+    "  card    = optional",
+    "  camera  = sync(argos)",
+    "}"
+   ],
+   "blank": 2,
+   "answer": "SERVICE",
+   "options": [
+    "OPEN",
+    "LOCKED",
+    "SERVICE",
+    "ALARM"
+   ],
+   "time": 40
+  }
+ },
+ "beats": [
+  {
+   "type": "msg",
+   "from": "argos",
+   "text": {
+    "tr": "GÖZ UYARISI · Tarlabaşı karartmasının şüphelisi: Deniz Kaya (27). Görenler GÖZ uygulamasından bildirsin. Ödül: 50.000 GÖZ puanı.",
+    "en": "EYE ALERT · Suspect in the Tarlabaşı blackout: Deniz Kaya (27). Report sightings in the EYE app. Reward: 50,000 EYE points."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Duyurdular. Merdivenlerdesin ama arka kapı kilitli. Kilit apartmanın yönetim paneline bağlı.",
+    "en": "It's out. You're on the stairs but the back door is locked. The lock is wired to the building's management panel."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Önce panele bak. Kapıcılar her şeyi bir yere not eder.",
+    "en": "Check the panel first. Caretakers write everything down somewhere."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "cmd:cat:kapici_notu.txt",
+   "hint": {
+    "tr": "Terminal: 'tara', 'bağlan apartman-yonetim', 'ls', sonra 'oku kapici_notu.txt'.",
+    "en": "Terminal: 'scan', 'connect apartman-yonetim', 'ls', then 'cat kapici_notu.txt'."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bekir Amca'yı seviyorum. Şimdi arka-kapi-kilit'e bağlan ve 'kır' yaz. Kilidin betiğini açacağım, doğru kartı sen yazacaksın.",
+    "en": "I love Bekir. Now connect to arka-kapi-kilit and type 'crack'. I'll open the lock's script, you write in the right badge."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "minigame:patch:back_door:success",
+   "hint": {
+    "tr": "arka-kapi-kilit'e bağlan, 'kır' yaz, kart kodunu betiğe yaz.",
+    "en": "Connect to arka-kapi-kilit, type 'crack', put the badge code in the script."
+   },
+   "id": "door_wait",
+   "fail_event": "minigame:patch:back_door:fail",
+   "fail_goto": "door_fail"
+  },
+  {
+   "type": "goto",
+   "target": "door_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Kilit bir dakikalığına kilitlendi. Notu bir daha oku, tekrar dene.",
+    "en": "The lock froze for a minute. Read the note again and retry."
+   },
+   "id": "door_fail"
+  },
+  {
+   "type": "goto",
+   "target": "door_wait"
+  },
+  {
+   "type": "system",
+   "text": {
+    "tr": "Arka kapı açıldı · 03:21",
+    "en": "Back door opened · 03:21"
+   },
+   "id": "door_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Dışarıdasın. Kurdele Sokağı'nın sonunda bir ARGOS aracı bekliyor. Farlarını görüyor musun?",
+    "en": "You're out. There's an ARGOS van at the end of Kurdele Street. See the headlights?"
+   }
+  },
+  {
+   "type": "choice",
+   "options": [
+    {
+     "text": {
+      "tr": "Koşarak geçerim.",
+      "en": "I'll run past it."
+     },
+     "flag": "route",
+     "value": "run",
+     "goto": "r_run"
+    },
+    {
+     "text": {
+      "tr": "Sokağı karartabilir misin?",
+      "en": "Can you black out the street?"
+     },
+     "flag": "route",
+     "value": "dark",
+     "goto": "r_dark"
+    }
+   ]
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Kameralar koşan insanı sever. Önce lambaları söndürelim.",
+    "en": "Cameras love a running person. Let's kill the lights first."
+   },
+   "id": "r_run"
+  },
+  {
+   "type": "goto",
+   "target": "lamps"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Ben değil, sen. Lamba ağının betiği basit, beş satır.",
+    "en": "Not me, you. The lamp network's script is simple, five lines."
+   },
+   "id": "r_dark"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "kurdele-sk-lambalar'a bağlan, 'kır' yaz ve lambaların gücünü kapat.",
+    "en": "Connect to kurdele-sk-lambalar, type 'crack' and cut the lamps' power."
+   },
+   "id": "lamps"
+  },
+  {
+   "type": "wait",
+   "event": "minigame:patch:lamps:success",
+   "hint": {
+    "tr": "Lambaların betiğindeki gücü kapat.",
+    "en": "Turn off the power in the lamps' script."
+   },
+   "id": "lamps_wait",
+   "fail_event": "minigame:patch:lamps:fail",
+   "fail_goto": "lamps_fail"
+  },
+  {
+   "type": "goto",
+   "target": "lamps_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Lambalar bir an yanıp söndü. Araçtakiler fark etmiş olabilir. Bir daha.",
+    "en": "The lamps flickered. The van might have noticed. Again."
+   },
+   "id": "lamps_fail"
+  },
+  {
+   "type": "goto",
+   "target": "lamps_wait"
+  },
+  {
+   "type": "system",
+   "text": {
+    "tr": "Kurdele Sk. · 14 lamba kapandı",
+    "en": "Kurdele St. · 14 lamps off"
+   },
+   "id": "lamps_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Karanlık senin dostun. Aracın yanından yürüyerek geç. Koşma.",
+    "en": "Darkness is your friend. Walk past the van. Don't run."
+   }
+  },
+  {
+   "type": "if_flag",
+   "key": "approach",
+   "value": "leak",
+   "target": "a_leak"
+  },
+  {
+   "type": "if_flag",
+   "key": "approach",
+   "value": "strike",
+   "target": "a_strike"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "İz bırakmıyoruz. Hayalet olmak sana yakışıyor.",
+    "en": "No traces. Being a ghost suits you."
+   }
+  },
+  {
+   "type": "goto",
+   "target": "drone"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bu arada ARGOS duyurusunu kaydettim. Muhbir olacaksan her kanıt lazım.",
+    "en": "By the way, I saved the ARGOS alert. If you're blowing the whistle, every bit of evidence counts."
+   },
+   "id": "a_leak"
+  },
+  {
+   "type": "goto",
+   "target": "drone"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Aracın kayıt cihazına küçük bir not bıraktım: \"Kedi buradaydı.\" Karşı saldırının ilk adımı.",
+    "en": "I left a little note on the van's recorder: \"Kedi was here.\" Step one of the counterstrike."
+   },
+   "id": "a_strike"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Kötü haber. Tepende bir ARGOS drone'u var: argos-drone-3. Termal kamerası seni bulmadan sinyaline gir.",
+    "en": "Bad news. There's an ARGOS drone above you: argos-drone-3. Get into its signal before its thermal camera finds you."
+   },
+   "id": "drone"
+  },
+  {
+   "type": "wait",
+   "event": "minigame:signal:success",
+   "hint": {
+    "tr": "argos-drone-3'e bağlan, 'kır' yaz ve sinyali kilitle.",
+    "en": "Connect to argos-drone-3, type 'crack' and lock the signal."
+   },
+   "id": "drone_wait",
+   "fail_event": "minigame:signal:fail",
+   "fail_goto": "drone_fail"
+  },
+  {
+   "type": "goto",
+   "target": "drone_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Drone bir tur daha attı. Hâlâ seni görmedi. Hızlı ol.",
+    "en": "The drone circled again. It still hasn't seen you. Be quick."
+   },
+   "id": "drone_fail"
+  },
+  {
+   "type": "goto",
+   "target": "drone_wait"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Drone'un gözü artık bende. Haliç'e doğru boş bir rotada uçuyor.",
+    "en": "The drone's eye is mine now. It's flying an empty route toward the Golden Horn."
+   },
+   "id": "drone_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Hafızasında bir devriye planı var. Oku, işimize yarayacak.",
+    "en": "There's a patrol plan in its memory. Read it, it'll come in handy."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "cmd:cat:devriye_plani.txt",
+   "hint": {
+    "tr": "Drone'daki devriye planını oku.",
+    "en": "Read the patrol plan on the drone."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Tophane tramvay durağı. Son sefer 03:45'te. Turnikeler kameralı ama planda yazanı gördün.",
+    "en": "Tophane tram stop. Last ride at 03:45. The turnstiles have cameras, but you saw what the plan says."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "cmd:connect:tophane-turnike",
+   "hint": {
+    "tr": "Turnikeye bağlan.",
+    "en": "Connect to the turnstile."
+   }
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "'kır' yaz ve turnikeyi doğru moda al.",
+    "en": "Type 'crack' and put the turnstile in the right mode."
+   }
+  },
+  {
+   "type": "wait",
+   "event": "minigame:patch:gate:success",
+   "hint": {
+    "tr": "Turnikenin modunu düzelt.",
+    "en": "Fix the turnstile's mode."
+   },
+   "id": "gate_wait",
+   "fail_event": "minigame:patch:gate:fail",
+   "fail_goto": "gate_fail"
+  },
+  {
+   "type": "goto",
+   "target": "gate_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "O mod alarm veriyor! Neyse ki kimse duymadı. Planı hatırla.",
+    "en": "That mode trips the alarm! Luckily nobody heard. Remember the plan."
+   },
+   "id": "gate_fail"
+  },
+  {
+   "type": "goto",
+   "target": "gate_wait"
+  },
+  {
+   "type": "system",
+   "text": {
+    "tr": "Tophane T1 · turnike SERVICE modunda",
+    "en": "Tophane T1 · turnstile in SERVICE mode"
+   },
+   "id": "gate_ok"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Bindin. Tramvay Karaköy'e doğru gidiyor. Vagonda iki kişi var, ikisi de uyuyor.",
+    "en": "You're on. The tram's heading to Karaköy. Two people in the car, both asleep."
+   }
+  },
+  {
+   "type": "choice",
+   "options": [
+    {
+     "text": {
+      "tr": "Nereye gidiyoruz?",
+      "en": "Where are we going?"
+     },
+     "goto": "q_where"
+    },
+    {
+     "text": {
+      "tr": "Sen gerçekte nesin, KEDİ?",
+      "en": "What are you really, KEDİ?"
+     },
+     "goto": "q_what"
+    }
+   ]
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Haliç'te eski bir tekne. Orada beni gerçekten tanıyan biri var.",
+    "en": "An old boat on the Golden Horn. Someone there actually knows me."
+   },
+   "id": "q_where"
+  },
+  {
+   "type": "goto",
+   "target": "final"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Güzel soru. Cevabı Haliç'teki eski bir teknede.",
+    "en": "Good question. The answer's on an old boat on the Golden Horn."
+   },
+   "id": "q_what"
+  },
+  {
+   "type": "msg",
+   "from": "kedi",
+   "text": {
+    "tr": "Telefonunu şarja tak, Deniz. Yarın uzun bir gün.",
+    "en": "Charge your phone, Deniz. Tomorrow's a long day."
+   },
+   "id": "final"
+  },
+  {
+   "type": "end_chapter"
+  }
+ ]
+}

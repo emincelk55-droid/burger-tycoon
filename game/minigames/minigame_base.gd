@@ -16,6 +16,8 @@ var _flash := 0.0
 var _flash_color := UIKit.RED
 var _low_time := false
 var _flash_rect: ColorRect
+var _margin: MarginContainer
+var _kb := 0.0
 
 
 func _ready() -> void:
@@ -30,6 +32,7 @@ func _ready() -> void:
 	col.add_theme_constant_override("separation", 18)
 	var top := 40 + int(UIKit.safe_top(self))
 	var m := UIKit.margin(col, 28, top, 28, 36)
+	_margin = m
 	add_child(UIKit.full_rect(m))
 
 	_title = UIKit.label(_title_text(), UIKit.FONT_TITLE, UIKit.AMBER)
@@ -66,6 +69,10 @@ func _process(delta: float) -> void:
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 3.0)
 		_flash_rect.color = Color(_flash_color, _flash * 0.22)
+	var kb := UIKit.keyboard_height(self)
+	if not is_equal_approx(kb, _kb):
+		_kb = kb
+		_margin.add_theme_constant_override("margin_bottom", 36 + int(kb))
 	if not running:
 		return
 	time_left -= delta

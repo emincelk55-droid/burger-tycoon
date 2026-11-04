@@ -259,5 +259,31 @@ func _add_log(entry: Dictionary) -> void:
 	message_added.emit(entry)
 
 
+## Sıradaki bölümün kimliği ("" ise yok).
+func next_chapter_id() -> String:
+	var nxt := str(chapter.get("next", ""))
+	if nxt == "" or not FileAccess.file_exists("res://data/story/%s.json" % nxt):
+		return ""
+	return nxt
+
+
+## Bitmiş bölümden sonrakine geçer. Bayraklar, açılan uygulamalar ve sohbet geçmişi korunur.
+func advance_chapter() -> bool:
+	var nxt := next_chapter_id()
+	if nxt == "" or not is_done():
+		return false
+	var st := state()
+	st["chapter"] = nxt
+	st["beat"] = 0
+	st["done"] = false
+	st["network"] = {"known": [], "breached": [], "connected": ""}
+	if not load_chapter(nxt):
+		return false
+	_add_log({"kind": "system", "from": "", "text": chapter.get("title", "")})
+	GameState.save_game()
+	_run()
+	return true
+
+
 func mark_read() -> void:
 	state()["unread"] = 0

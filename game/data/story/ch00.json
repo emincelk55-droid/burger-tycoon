@@ -4,6 +4,11 @@
   "tr": "Bölüm 0: Kör Nokta",
   "en": "Chapter 0: Blind Spot"
  },
+ "teaser": {
+  "tr": "Sıradaki: Bölüm 1 · Tarlabaşı'ndan Kaçış",
+  "en": "Next: Chapter 1 · Escape from Tarlabaşı"
+ },
+ "next": "ch01",
  "contacts": {
   "kedi": {
    "name": {

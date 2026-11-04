@@ -125,16 +125,24 @@ func _apply(res: Dictionary) -> void:
 
 
 func _start_minigame(kind: String) -> void:
-	match kind:
-		"signal":
-			_minigame = SignalGame.new()
-		_:
-			_minigame = BreachGame.new()
+	_minigame = make_minigame(kind)
 	add_child(_minigame)
 	var success: bool = await _minigame.finished
 	_minigame.queue_free()
 	_minigame = null
 	_apply(shell.on_minigame_result(kind, success))
+
+
+## "breach", "signal" ya da "patch:<bulmaca_id>"
+static func make_minigame(kind: String) -> MinigameBase:
+	if kind.begins_with("patch:"):
+		var g := CodePatchGame.new()
+		var puzzles: Dictionary = Story.chapter.get("puzzles", {})
+		g.puzzle = puzzles.get(kind.substr(6), {})
+		return g
+	if kind == "signal":
+		return SignalGame.new()
+	return BreachGame.new()
 
 
 func _prompt() -> String:

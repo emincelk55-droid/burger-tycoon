@@ -38,7 +38,10 @@ func _start_phone() -> void:
 	phone = PhoneOS.new()
 	phone.restart_requested.connect(_on_restart)
 	_set_screen(phone)
-	Story.start()
+	if Story.is_done() and Story.next_chapter_id() != "":
+		Story.advance_chapter()
+	else:
+		Story.start()
 
 
 func _on_language_changed(_lang: String) -> void:
@@ -54,6 +57,8 @@ func _on_restart() -> void:
 
 
 func _on_chapter_finished(_id: String) -> void:
+	if phone != null:
+		phone.close_app()
 	var end := ChapterEnd.new()
 	end.closed.connect(end.queue_free)
 	add_child(end)

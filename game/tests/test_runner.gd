@@ -36,7 +36,9 @@ func _run_all() -> void:
 	_test_shell()
 	_test_minigame_math()
 	_test_save_roundtrip()
+	_test_patch_logic()
 	await _test_full_prologue()
+	await _test_chapter1()
 	await _test_screens()
 
 
@@ -57,11 +59,17 @@ func _test_translations() -> void:
 
 
 func _test_chapter_data() -> void:
-	var ch := Story.read_chapter("ch00")
-	check(not ch.is_empty(), "ch00 yüklenemedi")
+	for id in ["ch00", "ch01"]:
+		_check_chapter(id)
+	check(Story.read_chapter("ch00").get("next") == "ch01", "ch00 -> ch01 bağlantısı yok")
+
+
+func _check_chapter(id: String) -> void:
+	var ch := Story.read_chapter(id)
+	check(not ch.is_empty(), id + " yüklenemedi")
 	var beats: Array = ch.get("beats", [])
 	var labels := Story.index_labels(beats)
-	check(beats.size() > 10, "ch00 çok kısa")
+	check(beats.size() > 10, id + " çok kısa")
 	var has_end := false
 	for b in beats:
 		var kind := str(b.get("type", ""))
@@ -79,12 +87,26 @@ func _test_chapter_data() -> void:
 			_check_lang(opt.get("text"), "seçenek")
 			if opt.has("goto"):
 				check(labels.has(str(opt["goto"])), "seçenek hedefi yok: " + str(opt["goto"]))
-	check(has_end, "ch00 end_chapter ile bitmiyor")
+	check(has_end, id + " end_chapter ile bitmiyor")
+	var puzzles: Dictionary = ch.get("puzzles", {})
+	for pid in puzzles:
+		var p: Dictionary = puzzles[pid]
+		_check_lang(p.get("title"), "bulmaca başlığı " + str(pid))
+		_check_lang(p.get("goal"), "bulmaca amacı " + str(pid))
+		var lines: Array = p.get("lines", [])
+		var blank := int(p.get("blank", -1))
+		check(blank >= 0 and blank < lines.size() and str(lines[blank]).contains("???"), "bulmaca boşluğu yanlış: " + str(pid))
+		check(CodePatchGame.is_correct(p, str(p.get("answer", ""))), "bulmaca cevabı kendini kabul etmiyor: " + str(pid))
+		var opts: Array = p.get("options", [])
+		check(opts.has(p.get("answer")), "doğru cevap seçeneklerde yok: " + str(pid))
 	var hosts: Dictionary = ch.get("network", {}).get("hosts", {})
 	for h in ch.get("network", {}).get("scan_order", []):
 		check(hosts.has(h), "scan_order içindeki cihaz tanımlı değil: " + str(h))
 	for h in hosts:
 		_check_lang(hosts[h].get("desc"), "cihaz açıklaması " + str(h))
+		var fw := str(hosts[h].get("firewall", "")) if hosts[h].get("firewall") != null else ""
+		if fw.begins_with("patch:"):
+			check(puzzles.has(fw.substr(6)), "cihazın bulmacası tanımlı değil: " + fw)
 		for f in hosts[h].get("files", {}):
 			_check_lang(hosts[h]["files"][f], "dosya " + str(f))
 
@@ -120,6 +142,60 @@ func _test_shell() -> void:
 	check(sh.suggestions().size() >= 3, "öneri listesi kısa")
 	r = sh.execute("asdf")
 	check((r["lines"] as Array).size() == 1, "bilinmeyen komut mesajı yok")
+
+
+func _test_patch_logic() -> void:
+	var p := {"answer": "OFF", "accept": ["0"]}
+	check(CodePatchGame.is_correct(p, " off "), "küçük harf cevap kabul edilmedi")
+	check(CodePatchGame.is_correct(p, "\"OFF\""), "tırnaklı cevap kabul edilmedi")
+	check(CodePatchGame.is_correct(p, "0"), "alternatif cevap kabul edilmedi")
+	check(not CodePatchGame.is_correct(p, "ON"), "yanlış cevap kabul edildi")
+	check(not CodePatchGame.is_correct(p, ""), "boş cevap kabul edildi")
+
+
+## Prolog bitince bölüm 1'e geçer ve bölüm 1'i sonuna kadar oynar.
+func _test_chapter1() -> void:
+	check(Story.is_done() and Story.next_chapter_id() == "ch01", "prologdan sonra ch01 yok")
+	check(Story.advance_chapter(), "ch01'e geçilemedi")
+	check(str(Story.state()["chapter"]) == "ch01", "bölüm kimliği değişmedi")
+	check(Story.state()["flags"].get("approach") == "leak", "bayraklar bölüm geçişinde kayboldu")
+	check(Story.is_unlocked("terminal"), "terminal bölüm geçişinde kilitlendi")
+	var sh := TerminalShell.new(Story.chapter["network"], Story.state()["network"])
+	_run_cmds(sh, ["tara", "bağlan apartman-yonetim", "ls", "oku kapici_notu.txt", "kes", "bağlan arka-kapi-kilit"])
+	var r := sh.execute("kır")
+	check(r["minigame"] == "patch:back_door", "kapı bulmacası başlamadı: " + str(r["minigame"]))
+	var g := TerminalApp.make_minigame(r["minigame"]) as CodePatchGame
+	check(g != null and str(g.puzzle.get("answer")) == "KAPICI-0412", "bulmaca verisi yüklenmedi")
+	g.free()
+	Story.post_event(sh.on_minigame_result(r["minigame"], false)["event"])
+	check(Story.current_wait_event() == "minigame:patch:back_door:success", "kapı hatasından sonra tekrar beklenmiyor")
+	sh.execute("kır")
+	Story.post_event(sh.on_minigame_result("patch:back_door", true)["event"])
+	check(Story.pending_choices().size() == 2, "sokak seçimi gelmedi")
+	Story.choose(0)
+	sh.execute("kes")
+	_run_cmds(sh, ["bağlan kurdele-sk-lambalar"])
+	sh.execute("kır")
+	Story.post_event(sh.on_minigame_result("patch:lamps", true)["event"])
+	sh.execute("kes")
+	_run_cmds(sh, ["bağlan argos-drone-3"])
+	sh.execute("kır")
+	Story.post_event(sh.on_minigame_result("signal", true)["event"])
+	_run_cmds(sh, ["oku devriye_plani.txt", "kes", "bağlan tophane-turnike"])
+	sh.execute("kır")
+	Story.post_event(sh.on_minigame_result("patch:gate", true)["event"])
+	check(Story.pending_choices().size() == 2, "tramvay seçimi gelmedi")
+	Story.choose(1)
+	await get_tree().process_frame
+	check(Story.is_done(), "bölüm 1 bitmedi, beat: %d" % int(Story.state()["beat"]))
+	check(Story.next_chapter_id() == "", "bölüm 1'den sonra beklenmeyen bölüm")
+
+
+func _run_cmds(sh: TerminalShell, cmds: Array) -> void:
+	for c in cmds:
+		var r := sh.execute(str(c))
+		if r["event"] != "":
+			Story.post_event(r["event"])
 
 
 func _test_minigame_math() -> void:
@@ -221,6 +297,19 @@ func _test_screens() -> void:
 	await _frames(5)
 	phone.close_app()
 	await _frames(2)
+
+	Story.load_chapter("ch01")
+	var patch := TerminalApp.make_minigame("patch:back_door") as CodePatchGame
+	host.add_child(patch)
+	await _frames(3)
+	patch._answer.text = "yanlış"
+	patch.submit()
+	patch._answer.text = "kapici-0412"
+	patch.submit()
+	check(not patch.running, "doğru cevapla bulmaca bitmedi")
+	await _frames(2)
+	patch.queue_free()
+	Story.load_chapter("ch00")
 
 	for game in [BreachGame.new(), SignalGame.new()]:
 		host.add_child(game)

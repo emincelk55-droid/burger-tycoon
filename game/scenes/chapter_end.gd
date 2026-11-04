@@ -24,8 +24,15 @@ func _ready() -> void:
 	if approach != "":
 		col.add_child(UIKit.label(Loc.t("end.approach", {"value": Loc.t("approach." + approach)}), UIKit.FONT_BODY, UIKit.TEXT))
 	col.add_child(UIKit.label(Loc.t("end.trace", {"value": int(GameState.trace)}), UIKit.FONT_BODY, UIKit.TEXT))
-	col.add_child(UIKit.label(Loc.t("end.next"), UIKit.FONT_BODY, UIKit.MUTED))
+	var teaser := Loc.pick(Story.chapter.get("teaser", ""))
+	col.add_child(UIKit.label(teaser if teaser != "" else Loc.t("end.next"), UIKit.FONT_BODY, UIKit.MUTED))
 
-	var b := UIKit.button(Loc.t("end.continue"))
-	b.pressed.connect(func() -> void: closed.emit())
+	var has_next := Story.next_chapter_id() != ""
+	var b := UIKit.button(Loc.t("end.next_chapter") if has_next else Loc.t("end.continue"))
+	b.pressed.connect(_on_continue)
 	col.add_child(b)
+
+
+func _on_continue() -> void:
+	Story.advance_chapter()
+	closed.emit()
